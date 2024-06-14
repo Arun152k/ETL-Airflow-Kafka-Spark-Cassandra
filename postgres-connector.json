@@ -1,0 +1,25 @@
+{
+    "name": "postgres-debezium-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "database.user": "airflow",
+        "database.dbname": "airflow",
+        "slot.name": "new_debezium_slot",
+        "slot.drop.on.stop": "true",
+        "database.history.kafka.bootstrap.servers": "broker:29092",
+        "database.history.kafka.topic": "schema-changes.postgres",
+        "publication.name": "new_dbz_publication",
+        "database.server.name": "new_dbserver",
+        "schema.include.list": "public",
+        "table.include.list": "public.created_users",
+        "database.port": "5432",
+        "plugin.name": "pgoutput",
+        "topic.prefix": "postgresDebesium",
+        "database.hostname": "postgres",
+        "database.password": "airflow",
+        "transforms": "unwrap",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+        "transforms.unwrap.add.headers": "op",
+        "transforms.unwrap.delete.handling.mode": "rewrite"
+    }
+}
