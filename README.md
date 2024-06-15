@@ -1,6 +1,10 @@
 # ETL and Streaming Data Pipeline
 
+*** *Active Repository* ***
+
 This repository showcases a robust ETL and streaming data pipeline leveraging Kafka, Spark, Airflow, Cassandra, and a Flask API with Swagger documentation. The pipeline efficiently fetches data from an external API, processes it, and streams it to various services for storage and further processing. Additionally, it incorporates Change-Data-Capture (CDC) using Debezium and Kafka Connect to track and stream changes from a PostgreSQL database, ensuring real-time data synchronization.
+
+Screenshots demonstrating the functionality of the various tools in the pipeline are available in the [images](images) folder.
 
 Huge shout out to [AirScholar](https://www.youtube.com/watch?v=GqAcTrqKcrY) video.
 
@@ -29,6 +33,19 @@ This project implements a comprehensive ETL and streaming data pipeline. The pip
 - **Debezium**: Captures changes in the PostgreSQL database and streams them to Kafka.
 - **Kafka Connect**: Uses the Debezium Postgres connector to manage the data capture process.
 
+## Docker Containers
+
+- **Zookeeper**: Manages and coordinates the Kafka brokers.
+- **Kafka Broker**: Handles the data streaming and messaging.
+- **Schema Registry**: Manages and provides access to Avro schemas for Kafka messages.
+- **Control Center**: Provides a web-based interface to monitor and manage the Kafka ecosystem.
+- **Airflow Webserver and Scheduler**: Orchestrates the ETL workflow with task scheduling and execution.
+- **PostgreSQL**: Serves as the source database for the Change Data Capture (CDC) process. Airflow's metadata is also stored here.
+- **Spark Master and Worker**: Executes the data processing tasks.
+- **Cassandra**: Stores the processed data.
+- **Debezium**: Captures changes in the PostgreSQL database and streams them to Kafka.
+- **Kafka Connect UI**: Provides a user interface to manage and monitor Kafka Connect.
+
 ## Getting Started
  
 1. **Clone the repository:**
@@ -56,6 +73,8 @@ This project implements a comprehensive ETL and streaming data pipeline. The pip
 6. Run the Flask to set up API endpoints for accessing Cassandra.
 
     ```python3 flaskServer.py```
+
+7. Vist ```http://127.0.0.1:5000/apidocs/``` for the API endpoints
 
 # Components
 
@@ -116,12 +135,32 @@ Configure Debezium using:
 
 ```curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d @postgres-connector.json```
 
+
+# Change-Data-Capture
+
+Debezium is used to capture changes in the PostgreSQL database and stream them to Kafka. Kafka Connect is configured to use the Debezium Postgres connector.
+
+The [postgres-connector.json](postgres-connector.json) file defines the configuration for the Debezium Postgres connector, specifying the database connection details and the Kafka topics for streaming the changes.
+
+Debezium and Kafka Connect should already be set up when you run `docker-compose`.
+
+Configure Debezium using:
+
+```curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d @postgres-connector.json```
+
+
 ## CDC at play:
 
-The ETL pipleline loads into Cassandra. For CDC, I have used a PostgreSQL database. 
+The earlier ETL pipleline loads into Cassandra. For CDC, I have used a PostgreSQL database.
+
+The workflow with images can be viewed in [DebeziumPOC](debezium/DebeziumPOC.pdf)
+
+The CDC messages in Kafka can be viewed here [CDCMessages](debezium/messages_postgresDebesium.public.created_users.csv)
+The workflow with images can be viewed in [DebeziumPOC](debezium/DebeziumPOC.pdf)
+
+The CDC messages in Kafka can be viewed here [CDCMessages](debezium/messages_postgresDebesium.public.created_users.csv)
+
 
 ## Summary
 
 In this project, we built a robust ETL and streaming data pipeline that integrates multiple technologies to fetch, process, and store user data efficiently. We utilized Airflow to orchestrate the workflow, Kafka for streaming the data, and Spark for processing the data. The processed data is then stored in Cassandra for persistence. Additionally, we implemented Debezium and Kafka Connect for change data capture from a PostgreSQL database, ensuring that any changes in the source database are streamed to Kafka in real-time. A Flask API with Swagger documentation was provided to interact with the stored data, offering endpoints for various CUD operations.
-
-

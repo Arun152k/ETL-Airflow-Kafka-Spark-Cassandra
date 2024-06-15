@@ -3,7 +3,17 @@ from flasgger import Swagger, swag_from
 from cassandra.cluster import Cluster
 
 app = Flask(__name__)
-swagger = Swagger(app)
+
+swagger = Swagger(
+    app,
+    template={
+        "info": {
+            "title": "ETL and Streaming Data Pipeline API",
+            "description": "This API provides endpoints to interact with the data stored in Cassandra as part of the ETL and streaming data pipeline. It includes operations for counting, retrieving, adding, updating, and deleting user data.",
+            "version": "1.0.0",
+        }
+    },
+)
 
 
 def create_cassandra_session():
@@ -17,7 +27,7 @@ def create_cassandra_session():
     {
         "responses": {
             200: {
-                "description": "Number of rows in the created_users table",
+                "description": "Number of rows in the user_stream table",
                 "schema": {
                     "type": "object",
                     "properties": {"count": {"type": "integer"}},
@@ -28,7 +38,7 @@ def create_cassandra_session():
 )
 def count_rows():
     session = create_cassandra_session()
-    count_query = "SELECT COUNT(*) FROM created_users;"
+    count_query = "SELECT COUNT(*) FROM user_stream;"
     count_result = session.execute(count_query)
     count = count_result.one()[0]
     return jsonify(count=count)
@@ -39,7 +49,7 @@ def count_rows():
     {
         "responses": {
             200: {
-                "description": "First five rows from the created_users table",
+                "description": "First five rows from the user_stream table",
                 "schema": {
                     "type": "array",
                     "items": {
@@ -66,7 +76,7 @@ def count_rows():
 )
 def first_five_rows():
     session = create_cassandra_session()
-    select_query = "SELECT * FROM created_users LIMIT 5;"
+    select_query = "SELECT * FROM user_stream LIMIT 5;"
     rows = session.execute(select_query)
     result = []
     for row in rows:
@@ -131,7 +141,7 @@ def add_user():
     session = create_cassandra_session()
     user_data = request.json
     insert_query = """
-    INSERT INTO created_users (id, first_name, last_name, gender, dob, address, post_code, email, username, registered_date, phone, picture)
+    INSERT INTO user_stream (id, first_name, last_name, gender, dob, address, post_code, email, username, registered_date, phone, picture)
     VALUES (%(id)s, %(first_name)s, %(last_name)s, %(gender)s, %(dob)s, %(address)s, %(post_code)s, %(email)s, %(username)s, %(registered_date)s, %(phone)s, %(picture)s)
     """
     session.execute(insert_query, user_data)
@@ -185,7 +195,7 @@ def update_user(user_id):
     session = create_cassandra_session()
     update_data = request.json
     update_query = """
-    UPDATE created_users SET first_name=%(first_name)s, last_name=%(last_name)s, gender=%(gender)s, dob=%(dob)s, address=%(address)s,
+    UPDATE user_stream SET first_name=%(first_name)s, last_name=%(last_name)s, gender=%(gender)s, dob=%(dob)s, address=%(address)s,
     post_code=%(post_code)s, email=%(email)s, username=%(username)s, registered_date=%(registered_date)s, phone=%(phone)s, picture=%(picture)s
     WHERE id=%(id)s
     """
@@ -218,7 +228,7 @@ def update_user(user_id):
 )
 def delete_user(user_id):
     session = create_cassandra_session()
-    delete_query = "DELETE FROM created_users WHERE id=%s"
+    delete_query = "DELETE FROM user_stream WHERE id=%s"
     session.execute(delete_query, (user_id,))
     return jsonify(message="User deleted successfully")
 
@@ -270,7 +280,7 @@ def delete_user(user_id):
 )
 def get_user(user_id):
     session = create_cassandra_session()
-    select_query = "SELECT * FROM created_users WHERE id=%s"
+    select_query = "SELECT * FROM user_stream WHERE id=%s"
     row = session.execute(select_query, (user_id,)).one()
     if row:
         result = {
@@ -333,7 +343,7 @@ def get_user(user_id):
 def search_user():
     session = create_cassandra_session()
     first_name = request.args.get("first_name")
-    select_query = "SELECT * FROM created_users WHERE first_name=%s ALLOW FILTERING"
+    select_query = "SELECT * FROM user_stream WHERE first_name=%s ALLOW FILTERING"
     rows = session.execute(select_query, (first_name,))
     result = []
     for row in rows:
