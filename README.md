@@ -52,7 +52,7 @@ Random user data is fetched from an external API ([randomuser.me](https://random
 
 ## Getting Started
  
-1. Clone the repository:
+1. Clone the repository
 
    ```git clone https://github.com/your-rep etl-streaming-pipeline.git```
 
@@ -71,7 +71,7 @@ Random user data is fetched from an external API ([randomuser.me](https://random
     AIRFLOW_PASSWORD="your_airflow_password"
     ```
 
-2. Start the services using Docker Compose:
+2. Start the services using Docker Compose
 
     ```docker-compose up -d```
 
@@ -87,7 +87,7 @@ Random user data is fetched from an external API ([randomuser.me](https://random
 
     ```python3 ETL.py```
 
-6. Run the Flask to set up API endpoints for accessing Cassandra.
+6. Run the Flask to set up API endpoints for accessing Cassandra
 
     ```python3 flaskServer.py```
 
