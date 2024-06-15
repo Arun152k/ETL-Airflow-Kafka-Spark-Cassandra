@@ -2,7 +2,7 @@
 
 *** *Active Repository* ***
 
-This repository showcases a robust ETL and streaming data pipeline leveraging Kafka, Spark, Airflow, Cassandra, and a Flask API with Swagger documentation. The pipeline efficiently fetches data from an external API, processes it, and streams it to various services for storage and further processing. Additionally, it incorporates Change-Data-Capture (CDC) using Debezium and Kafka Connect to track and stream changes from a PostgreSQL database, ensuring real-time data synchronization.
+This repository contains a robust ETL pipeline with Change Data Capture (CDC) using Airflow, Kafka, Spark, Cassandra and Debezium, and a Flask API with Swagger documentation. The pipeline efficiently extracts data from an external API, transforms it, and loads it to database sink. Additionally, it incorporates Change-Data-Capture (CDC) using Debezium and Kafka Connect to track and stream changes from a PostgreSQL database, ensuring real-time data synchronization.
 
 Screenshots demonstrating the functionality of the various tools in the pipeline are available in the [images](images) folder.
 
@@ -20,15 +20,19 @@ Huge shout out to [AirScholar](https://www.youtube.com/watch?v=GqAcTrqKcrY) vide
 
 ## Project Overview
 
-This project implements a comprehensive ETL and streaming data pipeline. The pipeline begins by fetching random user data from an external API and streaming it to Kafka. Spark then consumes the Kafka stream, processes the data, and stores it in Cassandra. Airflow orchestrates the entire workflow, ensuring seamless data flow and processing. Additionally, a Flask API with Swagger documentation is provided to interact with the data stored in Cassandra, offering endpoints for various CRUD operations. For real-time data synchronization, I implemented a CDC proof of concept using Debezium and Kafka Connect to capture changes in a PostgreSQL database and stream them to Kafka.
+This project implements a comprehensive ETL and streaming data pipeline. The pipeline begins by fetching random user data from an external API and streaming it to Kafka. Spark then consumes the Kafka stream, processes the data, and stores it in Cassandra. Airflow orchestrates the workflow, ensuring periodic API calls to fetch data. Additionally, a Flask API with Swagger documentation is provided to interact with the transformed data loaded in Cassandra, offering endpoints for various CRUD operations. 
+
+Additionally, a Change Data Capture (CDC) proof of concept using Debezium and Kafka Connect was implemented. This setup captures changes in a PostgreSQL database and streams them to Kafka.
+
+Random user data is fetched from an external API ([randomuser.me](https://randomuser.me)) and processed through the pipeline to simulate real-world scenarios.
 
 ## Architecture
 
 - **Kafka**: Used for streaming data.
 - **Spark**: Processes and transforms the data from Kafka.
-- **Cassandra**: Stores the processed data.
+- **Cassandra**: Stores the transformed data.
 - **Airflow**: Orchestrates the ETL process.
-- **Flask**: Provides API endpoints to interact with the stored data.
+- **Flask**: Provides API endpoints to interact with the Cassandra data.
 - **Swagger**: Documents the API endpoints.
 - **Debezium**: Captures changes in the PostgreSQL database and streams them to Kafka.
 - **Kafka Connect**: Uses the Debezium Postgres connector to manage the data capture process.
@@ -48,11 +52,24 @@ This project implements a comprehensive ETL and streaming data pipeline. The pip
 
 ## Getting Started
  
-1. **Clone the repository:**
+1. Clone the repository:
 
    ```git clone https://github.com/your-rep etl-streaming-pipeline.git```
 
 2. Set up the environment variables in a .env file
+
+    ``` POSTGRES_USER="your_postgres_user"
+    POSTGRES_PASSWORD="your_postgres_password"
+    POSTGRES_DB="your_postgres_db"
+    CASSANDRA_USERNAME="your_cassandra_username"
+    CASSANDRA_PASSWORD="your_cassandra_password"
+    AIRFLOW_USERNAME="your_airflow_username"
+    AIRFLOW_FIRST_NAME="your_airflow_first_name"
+    AIRFLOW_LAST_NAME="your_airflow_last_name"
+    AIRFLOW_ROLE="your_airflow_role"
+    AIRFLOW_EMAIL="your_airflow_email"
+    AIRFLOW_PASSWORD="your_airflow_password"
+    ```
 
 2. Start the services using Docker Compose:
 
@@ -82,7 +99,7 @@ This project implements a comprehensive ETL and streaming data pipeline. The pip
 Defines an Airflow DAG that fetches random user data from an external API, formats it, and streams it to Kafka.
 
 ### `ETL.py`
-Contains the ETL logic using Spark to consume data from Kafka, process it, and store it in Cassandra. It also defines functions to create keyspace and tables in Cassandra.
+Contains the ETL pipeline using Spark to consume data from Kafka, process it, and store it in Cassandra.
 
 ### `flaskServer.py`
 Provides API endpoints using Flask and Swagger to interact with the data stored in Cassandra. Endpoints include fetching the first five rows, counting rows, adding, updating, deleting, and searching for users.
@@ -92,49 +109,6 @@ Defines the Docker services required for the pipeline, including Kafka, Zookeepe
 
 ### `script/entrypoint.sh`
 A script to initialize Airflow, install requirements, and set up the Airflow database.
-
-# Endpoints
-
-### `/count`
-- **Method**: GET
-- **Description**: Returns the number of rows in the `created_users` table.
-
-### `/first-five`
-- **Method**: GET
-- **Description**: Returns the first five rows from the `created_users` table.
-
-### `/add-user`
-- **Method**: POST
-- **Description**: Adds a new user to the `created_users` table.
-
-### `/update-user/<user_id>`
-- **Method**: PUT
-- **Description**: Updates an existing user in the `created_users` table.
-
-### `/delete-user/<user_id>`
-- **Method**: DELETE
-- **Description**: Deletes a user from the `created_users` table.
-
-### `/get-user/<user_id>`
-- **Method**: GET
-- **Description**: Retrieves a user by ID from the `created_users` table.
-
-### `/search-user`
-- **Method**: GET
-- **Description**: Searches users by first name in the `created_users` table.
-
-# Change-Data-Capture
-
-Debezium is used to capture changes in the PostgreSQL database and stream them to Kafka. Kafka Connect is configured to use the Debezium Postgres connector.
-
-The postgres-connector.json file defines the configuration for the Debezium Postgres connector, specifying the database connection details and the Kafka topics for streaming the changes.
-
-Debezium and Kafka Connect should already been set up when you run docker-compose. 
-
-Configure Debezium using:
-
-```curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d @postgres-connector.json```
-
 
 # Change-Data-Capture
 
@@ -151,11 +125,11 @@ Configure Debezium using:
 
 ## CDC at play:
 
-The earlier ETL pipleline loads into Cassandra. For CDC, I have used a PostgreSQL database.
+The earlier ETL pipleline loads into Cassandra. For CDC, a PostgreSQL database was used.
 
 The CDC messages in Kafka can be viewed here [CDCMessages](debezium/messages_postgresDebesium.public.created_users.csv).
-The POC with images can be viewed in [DebeziumPOC](debezium/DebeziumPOC.pdf).
+A comprehensive POC with images can be viewed in [DebeziumPOC](debezium/DebeziumPOC.pdf).
 
 ## Summary
 
-In this project, we built a robust ETL and streaming data pipeline that integrates multiple technologies to fetch, process, and store user data efficiently. We utilized Airflow to orchestrate the workflow, Kafka for streaming the data, and Spark for processing the data. The processed data is then stored in Cassandra for persistence. Additionally, we implemented Debezium and Kafka Connect for change data capture from a PostgreSQL database, ensuring that any changes in the source database are streamed to Kafka in real-time. A Flask API with Swagger documentation was provided to interact with the stored data, offering endpoints for various CUD operations.
+In this project, a robust ETL pipeline was built, that integrates multiple technologies to fetch, process, and store user data. We utilized Airflow to orchestrate the workflow, Kafka for streaming the data, and Spark for processing the data. The processed data is then stored in Cassandra. Additionally, we implemented Debezium and Kafka Connect for change data capture from a PostgreSQL database, ensuring that any changes in the source database are streamed to Kafka in real-time. A Flask API with Swagger documentation was provided to interact with the stored data, offering endpoints for various CUD operations.

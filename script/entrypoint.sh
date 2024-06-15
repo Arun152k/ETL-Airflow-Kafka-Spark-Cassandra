@@ -9,12 +9,12 @@ fi
 if [ ! -f "/opt/airflow/airflow.db" ]; then
   airflow db init && \
   airflow users create \
-    --username admin \
-    --firstname admin \
-    --lastname admin \
-    --role Admin \
-    --email admin@example.com \
-    --password admin
+    --username {AIRFLOW_USERNAME} \
+    --firstname {AIRFLOW_FIRST_NAME} \
+    --lastname {AIRFLOW_LAST_NAME} \
+    --role {AIRFLOW_ROLE} \
+    --email {AIRFLOW_EMAIL} \
+    --password {AIRFLOW_PASSWORD}
 fi
 
 $(command -v airflow) db upgrade
