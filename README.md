@@ -76,7 +76,7 @@ This project implements a comprehensive ETL and streaming data pipeline. The pip
 
 7. Vist ```http://127.0.0.1:5000/apidocs/``` for the API endpoints
 
-# Components
+# Important Components
 
 ### `kakfa_stream.py`
 Defines an Airflow DAG that fetches random user data from an external API, formats it, and streams it to Kafka.
