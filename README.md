@@ -153,12 +153,12 @@ Configure Debezium using:
 
 The earlier ETL pipleline loads into Cassandra. For CDC, I have used a PostgreSQL database.
 
-The workflow with images can be viewed in [DebeziumPOC](debezium/DebeziumPOC.pdf)
+The workflow with images can be viewed in [DebeziumPOC](debezium/DebeziumPOC.pdf).
 
-The CDC messages in Kafka can be viewed here [CDCMessages](debezium/messages_postgresDebesium.public.created_users.csv)
-The workflow with images can be viewed in [DebeziumPOC](debezium/DebeziumPOC.pdf)
+The CDC messages in Kafka can be viewed here [CDCMessages](debezium/messages_postgresDebesium.public.created_users.csv).
+The workflow with images can be viewed in [DebeziumPOC](debezium/DebeziumPOC.pdf).
 
-The CDC messages in Kafka can be viewed here [CDCMessages](debezium/messages_postgresDebesium.public.created_users.csv)
+The CDC messages in Kafka can be viewed here [CDCMessages](debezium/messages_postgresDebesium.public.created_users.csv).
 
 
 ## Summary
